@@ -13,9 +13,9 @@ public class InputManager //키가 눌릴때만 호출되도록
 
     public void OnUpdate()
     {
-        //if (EventSystem.current.IsPointerOverGameObject()) return; //UI는 걸러낸다.
+        if (EventSystem.current.IsPointerOverGameObject()) return; //UI는 걸러낸다.
         if (Input.anyKey && KeyAction != null) KeyAction.Invoke(); //키액션이 있다면
-
+        
         if (MouseAction != null)
         {
             if (Input.GetMouseButton(0))
@@ -31,6 +31,7 @@ public class InputManager //키가 눌릴때만 호출되도록
             }
         }
     }
+
     public void Clear()
     {
         KeyAction = null;

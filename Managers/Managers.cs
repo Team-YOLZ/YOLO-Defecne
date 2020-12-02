@@ -31,6 +31,7 @@ public class Managers : MonoBehaviour
     void Start()
     {
         Init();
+        Screen.SetResolution(900, 1600, false); //화면해상도 고정.
     }
 
     // Update is called once per frame
