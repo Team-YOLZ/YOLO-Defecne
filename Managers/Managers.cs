@@ -28,6 +28,9 @@ public class Managers : MonoBehaviour
     //PoolManager _pool = new PoolManager();
     //public static PoolManager Pool { get { return Instance._pool; } }
 
+    PhotonMgs _photon = new PhotonMgs();
+    public static PhotonMgs Photon { get { return Instance._photon; } }
+
     void Start()
     {
         Init();
@@ -47,8 +50,8 @@ public class Managers : MonoBehaviour
             if (go == null)
             {
                 go = new GameObject { name = "@Managers" };
-                go.AddComponent<Managers>();
             }
+            go.AddComponent<Managers>();
             DontDestroyOnLoad(go);
             s_instance = go.GetComponent<Managers>();
         }
@@ -57,5 +60,6 @@ public class Managers : MonoBehaviour
     public static void Clear() //날려줘야할 것들
     {
     }
+
 }
 

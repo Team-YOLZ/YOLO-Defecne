@@ -33,4 +33,14 @@ public class Define
         Lobby,
         Game,
     }
+
+    public enum TitleSceneState
+    {
+        Title,
+        Login,
+        SignUp,
+        SignUpNickname,
+        SignUpNicknameCancle,
+       
+    }
 }

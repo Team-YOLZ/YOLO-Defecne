@@ -12,8 +12,10 @@ public class MainScene : BaseScene
     private GameObject _mainCanvas=null;
     [SerializeField]
     private GameObject _emptyCanvas=null;
+    [SerializeField]
+    private GameObject _lobbyPanel = null;
 
-    Vector3 _main;
+   Vector3 _main;
     Vector3 _inventory;
     Vector3 _empty;
     public override void Clear()
@@ -37,10 +39,16 @@ public class MainScene : BaseScene
         _main = _mainCanvas.transform.position;
         _inventory = _inventroyCanvas.transform.position;
         _empty = _emptyCanvas.transform.position;
+
+        //로비 비활성
+        _lobbyPanel.SetActive(false);
     }
     public void GoLobby()
     {
-        Managers.Scene.LoadScene(Define.Scene.Lobby);
+        //Managers.Scene.LoadScene(Define.Scene.Lobby);
+        //로비씬 x -> 로비UI
+        _lobbyPanel.SetActive(true);
+        
     }
 
     public void GoInventory()
