@@ -8,6 +8,7 @@ public class TowerSpawner : MonoBehaviourPunCallbacks
 {
     [SerializeField]
     private TowerTemplete[] towerTemplete; //타워 정보.
+    private GameManager GM;
 
     [SerializeField]
     private GameObject _towerPrefab; //리소스매니저 사용 안할 시 사용.
@@ -35,7 +36,16 @@ public class TowerSpawner : MonoBehaviourPunCallbacks
         //타워 선택 리스트 할당 코드 들어가야함. 디비 연동 후.
         //_towerprefab = GameObject.FindGameObjectsWithTag();
         if (!PV.IsMine) this.gameObject.tag = "TowerSpawner(Client)";
+        if (PV.IsMine)
+        {
+            GM = GameObject.Find("GameManager").GetComponent<GameManager>();
+            for (int i = 0; i < towerTemplete.Length; i++)
+            {
+                towerTemplete[i] = GM.towerTempletes[i];
+            }
+        }
     }
+
     public void SpawnTower(Transform tileTransform)
     {
         if(towerBuildGold > playerGold.CurrentGold) //타워 건설 비용이 부족하면 
@@ -61,15 +71,30 @@ public class TowerSpawner : MonoBehaviourPunCallbacks
         towerBuildGold += 10;
         //선택한 타일의 위치에 타워 오브젝트 생성.
         int RandomTower = Random.Range(0, 5);
-        if (PV.IsMine)
+        //선택한 타일보다 z축 더 앞에 위치시키기
+        if (PhotonNetwork.IsMasterClient)
         {
-            // go = PhotonNetwork.Instantiate(_towerprefab[RandomTower].name, tileTransform.transform.position, Quaternion.identity) as GameObject;
-            go = PhotonNetwork.Instantiate(towerTemplete[RandomTower].name, tileTransform.transform.position, Quaternion.identity) as GameObject;
-            TowerParenting(go);
-            //타워 무기에 enemyspawner List 전달.
-            go.GetComponent<TowerWeapon>().SetUp(_enemySpawner,playerGold);
+            Vector3 position = tileTransform.position + Vector3.back;
+
+            if (PV.IsMine)
+            {
+                go = PhotonNetwork.Instantiate(towerTemplete[RandomTower].name, position, Quaternion.identity) as GameObject;
+                TowerParenting(go);
+                //타워 무기에 enemyspawner List 전달.
+                go.GetComponent<TowerWeapon>().SetUp(_enemySpawner, playerGold,tile);
+            }
         }
-      
+        else
+        {
+            Vector3 position = tileTransform.position + Vector3.forward;
+            if (PV.IsMine)
+            {
+                go = PhotonNetwork.Instantiate(towerTemplete[RandomTower].name, position, Quaternion.identity) as GameObject;
+                TowerParenting(go);
+                //타워 무기에 enemyspawner List 전달.
+                go.GetComponent<TowerWeapon>().SetUp(_enemySpawner, playerGold,tile);
+            }
+        }
     }
 
     public void TowerParenting(GameObject game)
@@ -82,5 +107,4 @@ public class TowerSpawner : MonoBehaviourPunCallbacks
         }
         game.transform.parent = Root.transform;
     }
-
 }

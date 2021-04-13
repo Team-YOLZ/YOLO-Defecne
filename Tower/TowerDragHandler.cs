@@ -1,42 +1,36 @@
-﻿using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
-public class TowerDragHandler : MonoBehaviour
-{
-    private float startPosX;
-    private float startPosY;
-    private bool isBeginHeld = false;
+﻿//using UnityEngine;
+//using UnityEngine.EventSystems;
+//using UnityEngine.UI;
+//public class TowerDragHandler : MonoBehaviour
+//{
+//    private float startPosX;
+//    private float startPosY;
+//    private bool isBeginHeld = false;
 
-    private void Update()
-    {
-        if(isBeginHeld == true )
-        {
-            Vector3 mousepos;
-            mousepos = Input.mousePosition;
-            mousepos = Camera.main.ScreenToWorldPoint(mousepos);
+//    private Vector2 StartPos;
 
-            this.gameObject.transform.localPosition = new Vector3(mousepos.x - startPosX, mousepos.y - startPosY, 0);
-        }
-    }
+//    private void Update()
+//    {
+//        if (Input.GetMouseButton(0))
+//        {
+//            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+//            RaycastHit2D rayhit = Physics2D.Raycast(mousePos, Vector2.zero);
 
-    public void OnMouseDown()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Debug.Log(gameObject.name);
-            Vector3 mousepos;
-            mousepos = Input.mousePosition;
-            mousepos = Camera.main.ScreenToWorldPoint(mousepos);
+//            if (rayhit.collider.tag !=null )
+//            {
+//                Vector2 StartPos = rayhit.collider.gameObject.transform.GetChild(1).transform.position;
+//                rayhit.collider.gameObject.transform.GetChild(1).transform.position = mousePos;
+//                Debug.Log("Down" + rayhit.collider.gameObject.GetComponent<SpriteRenderer>().sprite.name);
 
-            startPosX = mousepos.x - this.transform.localPosition.x;
-            startPosY = mousepos.y - this.transform.localPosition.y;
-
-            isBeginHeld = true;
-        }
-
-    }
-    public void OnMouseUp()
-    {
-        isBeginHeld = false;
-    }
-}
+//                if (Input.GetMouseButtonUp(0))
+//                {
+//                    if (rayhit.collider.tag == "Tower")
+//                    {
+//                        Debug.Log("UP" + rayhit.collider.gameObject.GetComponent<SpriteRenderer>().sprite.name);
+//                    }
+//                    else rayhit.collider.gameObject.transform.GetChild(1).transform.position = StartPos;
+//                }
+//            }
+//        }
+//    }
+//}

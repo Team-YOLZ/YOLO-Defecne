@@ -30,6 +30,10 @@ public class EnemyCtrl : MonoBehaviour
         //적 이동,목표지점 설정 코루틴 함수 시작.
         StartCoroutine("OnMove");
     }
+    private void Start()
+    {
+        StartCoroutine(OnDie2());
+    }
 
     private IEnumerator OnMove()
     {
@@ -73,6 +77,10 @@ public class EnemyCtrl : MonoBehaviour
             OnDie(EnemyDestroyType.Arrive);
             //여기에 생명력 깍이는 코드와 이펙트 추가해야함.
         }
+    }
+    private IEnumerator OnDie2()
+    {
+        yield return new WaitForSeconds(10.0f);
     }
 
     public void OnDie(EnemyDestroyType type)

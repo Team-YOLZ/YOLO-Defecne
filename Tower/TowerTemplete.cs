@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
+using Photon.Pun;
 
 
 [CreateAssetMenu]
 public class TowerTemplete : ScriptableObject
 {
     public GameObject towerPrefab;
+    public GameObject Projecttile;
     public Weapon[] weapon;
 
     [System.Serializable]
@@ -15,5 +17,6 @@ public class TowerTemplete : ScriptableObject
         public float rate;    // 공격속도
         public float range;   // 사거리
         public float cost;    // 비용
+        public float slow;    // 감속률
     }
 }

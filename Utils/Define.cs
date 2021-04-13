@@ -43,4 +43,11 @@ public class Define
         SignUpNicknameCancle,
        
     }
+
+    public enum LoadingState
+    {
+        Loading,
+        LoadingSuccess,
+        LoadingFail,
+    }
 }

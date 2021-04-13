@@ -38,7 +38,7 @@ public class EnemySpawner : MonoBehaviour
     }
     private void Start()
     {
-        if (!PV.IsMine) this.gameObject.tag = "EnemySpawner(Client)";
+        //if (!PV.IsMine) this.gameObject.tag = "EnemySpawner(Client)";
         _cansvasTransform = GameObject.FindGameObjectWithTag("GameCanvas").transform;
     }
     public void StartWave(Wave wave)
@@ -55,9 +55,6 @@ public class EnemySpawner : MonoBehaviour
     private IEnumerator SpawnEnemy()
     {
         int spawnEnemyCount = 0;
-
-
-
         //while (true)
         //현재 웨이브에서 생성해야 하는 만큼의 적 생성 후 코루틴 종료.
         while(spawnEnemyCount<currentWave.maxEnemyCount)

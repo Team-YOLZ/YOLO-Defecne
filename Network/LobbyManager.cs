@@ -9,19 +9,27 @@ using Hashtable = ExitGames.Client.Photon.Hashtable; //CustomProperties를 사�
 public class LobbyManager : MonoBehaviourPunCallbacks
 {
 
-    [Header("Loding")]
-    [SerializeField]
-    private GameObject Loding_image;
-    [SerializeField]
-    private Text Loding_text;
-    [SerializeField]
-    private Image Loding_bar;
+    [Header("BackGround")]
     [SerializeField]
     private GameObject GoLobby_btn;
     [SerializeField]
     private GameObject GoInven_btn;
-   
 
+    [Header("Rank")]
+    [SerializeField]
+    private Text nickname_text;
+    [SerializeField]
+    private Image trophy_progressbar;
+    [SerializeField]
+    private Text trophy_text;
+    [SerializeField]
+    private Image class_image;
+    [SerializeField]
+    private Text class_text;
+    [SerializeField]
+    private int MyTrophy;
+    [SerializeField]
+    private int MyClass;
 
     [Header("Lobby")]
     [SerializeField]
@@ -59,13 +67,13 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public GameObject[] Mydacks;
     public Sprite[] Mydacks_Image;
     public string MydacksImage;
-    public bool ismaster = false;
+    //public bool ismaster = false;
 
     #region Private Fields
 
     private string _roomNumber; //방 코드 번호(sender)
     private NetworkManager _networkManager;
-
+    private Loading _loading;
     #endregion
 
 
@@ -78,23 +86,21 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     void Start()
     {
-        _networkManager = FindObjectOfType<NetworkManager>(); //네트워크매니저 스크립트로 유저아이디 가지고 올거ㅇ
-                                                              // _userId = _networkManager.GetUserNickname(); //유저아이디를 넣기
+        _networkManager = GameObject.Find("@Managers").GetComponent<NetworkManager>();  //FindObjectOfType 사용시 너무 느리니...
+        //_networkManager = FindObjectOfType<NetworkManager>(); //네트워크매니저 스크립트로 유저아이디 가지고 올거ㅇ
+        _loading = FindObjectOfType<Loading>();
 
-        friendMatchCreateRoom_btn.SetActive(false); //서버 접속 전 방만들기 막기
+        //내 랭킹 조회
+        MyTrophy = _networkManager.trophy ;
+        MyClass = MyTrophy / 200;
+
         Managers.Photon.OnStart(); //서버 접
-
-        lobby_panel.SetActive(false);
-        friendMatch_panel.SetActive(false);
-        friendMatchJoin_panel.SetActive(false);
-        friendMatchCreateRoom_panel.SetActive(false);
-
-        friendMatchCreateRoom_btn.SetActive(true);
     }
 
     #endregion
 
     #region Public Methods
+
 
     public void GoLobby() //로비 들어가기
     {
@@ -176,6 +182,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     }
 
+
     [PunRPC]
     public void EnterGame()
     {
@@ -203,6 +210,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             yield return new WaitForSeconds(.3f);
         }
     }
+
     #endregion
 
     #region Pun Callbacks
@@ -213,6 +221,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
         PhotonNetwork.LocalPlayer.NickName = _networkManager.GetUserNickname();
         Debug.Log("유저닉네임 : " + PhotonNetwork.LocalPlayer.NickName);
+
+        
+        _loading.IsConnectedToMaster(true);
+        RankSystem(); 
     }
 
     public override void OnDisconnected(DisconnectCause cause)
@@ -226,7 +238,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("joined Lobby");
         MydacksImage = "";
-        Mydacks = GameObject.FindGameObjectsWithTag("Mydack");
         for (int i = 0; i < Mydacks.Length; i++)
         {
             Mydacks_Image[i] = Mydacks[i].GetComponent<Image>().sprite;
@@ -273,5 +284,42 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         Debug.Log("방 나가기");
         PhotonNetwork.JoinLobby(); //로비로 다시 들어감
     }
+    #endregion
+
+
+
+    #region Rank
+    void RankSystem()
+    {
+
+        //닉네임 설정
+        nickname_text.text= _networkManager.GetUserNickname();
+
+        //0 200     1
+        //200 400   2
+        //400 600   3
+        //600 800   4
+        //800 1000  5
+        //1000 1200 6
+        //1200 1400 7
+        //1400 1600 8
+        //1600 1800 9
+        //1800 2000 10
+
+
+        //_networkManager.GetAndUpdateUserScore(245); //랭킹점수 갱신
+
+        //트로피 숫자 
+        trophy_text.text = MyTrophy.ToString();
+      
+        //클래스 이미지와 숫자
+        class_text.text = $"클래스 {MyClass}";
+        class_image.sprite = Resources.Load<Sprite>($"Rank/rank_{MyClass}");
+
+        trophy_progressbar.fillAmount = (MyTrophy % 200.0f)/200.0f;
+    }
+
+
+
     #endregion
 }
