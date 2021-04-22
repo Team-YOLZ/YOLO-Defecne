@@ -90,11 +90,15 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         //_networkManager = FindObjectOfType<NetworkManager>(); //네트워크매니저 스크립트로 유저아이디 가지고 올거ㅇ
         _loading = FindObjectOfType<Loading>();
 
-        //내 랭킹 조회
-        MyTrophy = _networkManager.trophy ;
-        MyClass = MyTrophy / 200;
-
-        Managers.Photon.OnStart(); //서버 접
+        //if (PhotonNetwork.IsConnected) //이미 연결이 되어있다면
+        //{
+        //    Debug.Log("이미 연결되어 있었고 다시 재접속한다?");
+        //    Managers.Photon.OnDisconnect(); //연결해ㅈㅔ 후 재접속
+        //}
+        //else
+        //{
+            Managers.Photon.OnStart(); //서버 접
+        //}
     }
 
     #endregion
@@ -186,7 +190,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     [PunRPC]
     public void EnterGame()
     {
-        Managers.Photon.LoadLevel();
+        Managers.Photon.LoadLevelGame();
     }
 
     IEnumerator InfoTextShake()
@@ -210,6 +214,15 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             yield return new WaitForSeconds(.3f);
         }
     }
+    IEnumerator GetMyRank()
+    {
+        MyTrophy = _networkManager.trophy;
+        MyClass = MyTrophy / 200;
+
+        yield return MyTrophy;
+
+        RankSystem();
+    }
 
     #endregion
 
@@ -222,9 +235,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         PhotonNetwork.LocalPlayer.NickName = _networkManager.GetUserNickname();
         Debug.Log("유저닉네임 : " + PhotonNetwork.LocalPlayer.NickName);
 
-        
+        //내 랭킹 조회
+        StartCoroutine("GetMyRank");
+
         _loading.IsConnectedToMaster(true);
-        RankSystem(); 
+        
     }
 
     public override void OnDisconnected(DisconnectCause cause)
@@ -291,23 +306,20 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     #region Rank
     void RankSystem()
     {
-
+   
         //닉네임 설정
         nickname_text.text= _networkManager.GetUserNickname();
 
-        //0 200     1
-        //200 400   2
-        //400 600   3
-        //600 800   4
-        //800 1000  5
-        //1000 1200 6
-        //1200 1400 7
-        //1400 1600 8
-        //1600 1800 9
-        //1800 2000 10
-
-
-        //_networkManager.GetAndUpdateUserScore(245); //랭킹점수 갱신
+        //0 200     0
+        //200 400   1
+        //400 600   2
+        //600 800   3
+        //800 1000  4
+        //1000 1200 5
+        //1200 1400 6
+        //1400 1600 7
+        //1600 1800 8
+        //1800 2000 9
 
         //트로피 숫자 
         trophy_text.text = MyTrophy.ToString();

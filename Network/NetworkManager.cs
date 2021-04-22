@@ -4,6 +4,7 @@ using LitJson;
 using System;
 using UnityEngine.UI;
 using static Define;
+using System.Collections;
 
 public class NetworkManager : MonoBehaviour
 {
@@ -104,6 +105,7 @@ public class NetworkManager : MonoBehaviour
 
     }
 
+
     public void MessageBoxCheckBtn()  //메세지박스 버튼 클릭 
     {
         switch (_nowSceneState)
@@ -203,7 +205,7 @@ public class NetworkManager : MonoBehaviour
             if (SignUp_idInput.text.Length < 4)  //아이디 글자 수 체크
             {
                 SignUpError_Text.text = "4글자 이상의 아이디를 입력해주세요.";
-                Debug.Log(" ID  4글자 제한"); 
+                Debug.Log(" ID  4글자 제한");
             }
             else if (SignUp_idInput.text.Length > 15)
             {
@@ -223,7 +225,7 @@ public class NetworkManager : MonoBehaviour
             else //에러 코드
             {
                 string error = BRO.GetStatusCode();
-               
+
                 switch (error)
                 {
                     case "409":
@@ -270,7 +272,7 @@ public class NetworkManager : MonoBehaviour
 
         if (InputFieldEmptyCheck(idInput) && InputFieldEmptyCheck(PWInput))
         {
-           
+
             BackendReturnObject BRO = Backend.BMember.CustomLogin(idInput.text, PWInput.text);
             Debug.Log("로그인 시도 : " + BRO.GetStatusCode() + BRO.GetErrorCode());
 
@@ -288,7 +290,7 @@ public class NetworkManager : MonoBehaviour
             }
             else if (BRO.IsSuccess())
             {
-            JsonData nicknameJson = Backend.BMember.GetUserInfo().GetReturnValuetoJSON()["row"]["nickname"];//닉네임 받아오기
+                JsonData nicknameJson = Backend.BMember.GetUserInfo().GetReturnValuetoJSON()["row"]["nickname"];//닉네임 받아오기
                 if (nicknameJson == null) //회원가입은 됐지만 닉네임을 설정 안했을 시
                 {
                     ShowSignUpNickname();
@@ -296,16 +298,10 @@ public class NetworkManager : MonoBehaviour
                 else
                 {
                     Debug.Log("로그인 성공");
-                    if (string.IsNullOrEmpty(userRankUuid))
-                    {
-                        GetMyRank();
-                    }
-                    else
-                    {
-                        Managers.Scene.LoadScene(Define.Scene.Main);
-                    }
+                    GetMyRank();
+                    Managers.Scene.LoadScene(Define.Scene.Main);
                 }
-       
+
             }
             else
             {
@@ -420,12 +416,12 @@ public class NetworkManager : MonoBehaviour
                 isSuccessNicknamechecked = true; //닉네임 사용 가능
                 nicknameDuplitionText = SignUp_NicknameInput.text;
             }
-            else if(BRO.GetStatusCode()=="409")
+            else if (BRO.GetStatusCode() == "409")
             {
                 NicknameError_Text.text = "중복된 닉네임 입니다.";
                 isSuccessNicknamechecked = false; //닉네임 사용 불가
             }
-            else if(BRO.GetStatusCode()=="400")
+            else if (BRO.GetStatusCode() == "400")
             {
                 NicknameError_Text.text = "앞/뒤 공백을 없애거나 20자 이하 닉네임을 설정해 주십시오.";
                 isSuccessNicknamechecked = false;
@@ -485,7 +481,7 @@ public class NetworkManager : MonoBehaviour
         //}
 
         //닉네임 중복 성공 여부 및 현재 닉네임 입력 필드와 중복확인 버튼 누른 후의 입력필드가 같은가?
-        if(isSuccessNicknamechecked && (nicknameDuplitionText == SignUp_NicknameInput.text))
+        if (isSuccessNicknamechecked && (nicknameDuplitionText == SignUp_NicknameInput.text))
         {
             Debug.Log(Backend.BMember.CreateNickname(SignUp_NicknameInput.text).ToString());
             _nowSceneState = TitleSceneState.SignUpNickname;
@@ -557,7 +553,7 @@ public class NetworkManager : MonoBehaviour
         {
             JsonData Userdata = userinfo.GetReturnValuetoJSON()["row"];
             JsonData nicknameJson = Userdata["nickname"];
-            
+
             // 닉네임 여부를 확인 하는 로직
             if (nicknameJson != null)
             {
@@ -793,7 +789,7 @@ public class NetworkManager : MonoBehaviour
 
     // 유저 랭킹을 갱신하기 위해서는 먼저 테이블의 rowIndate를 알아야 되기 때문에 
     // 테이블 조회를 먼저 수행
-    public void GetAndUpdateUserScore(int score)
+    public void GetAndUpdateUserScore(int score, bool isVictory)
     {
         Debug.Log("GetAndUpdateUserScore");
         // 테이블 명이 존재하는지 확인
@@ -802,60 +798,68 @@ public class NetworkManager : MonoBehaviour
             throw new System.Exception("tableName is empty");
         }
 
-        Backend.GameData.Get(tableName, new Where(), callback =>
+        var bro = Backend.GameData.Get(tableName, new Where());
+
+        if (bro.IsSuccess() == false)
         {
-            if (callback.IsSuccess() == false)
-            {
-                Debug.LogError("게임 정보 조회 실패: " + callback);
-                return;
-            }
+            Debug.LogError("게임 정보 조회 실패: " + bro);
+            return;
+        }
 
-            Debug.Log("게임 정보 조회 성공: " + callback);
-            var data = callback.FlattenRows();
-            Debug.Log("Data : " + data);
-            Debug.Log("Data.Count : " + data.Count);
-            if (data.Count <= 0)
-            {
-                Debug.Log("게임정보가 비어있습니다. 칼럼(디폴트 값)을 추가합니다.");
-                Param param = new Param();
-                param.Add("trophy", 0);
-                Backend.GameData.Insert(tableName, param);  //동기방식으로 추가
-                //Debug.Log(param);
-                GetAndUpdateUserScore(score);
-                return;
-            }
+        Debug.Log("게임 정보 조회 성공: " + bro);
+        var data = bro.FlattenRows();
 
-            var indate = data[0]["inDate"].ToString();
-            Debug.Log("data[0][inDate].ToString() : " + indate);
-            // 테이블 조회 후 갱신할 테이블의 inDate를 조회했으면,
-            // 해당 정보를 이용하여 랭킹 갱신
-            UpdateUserScore(indate, score);
+        if (data.Count <= 0)
+        {
+            Debug.Log("게임정보가 비어있습니다. 칼럼(디폴트 값)을 추가합니다.");
+            Param param = new Param();
+            param.Add("trophy", 0);
+            Backend.GameData.Insert(tableName, param);  //동기방식으로 추가
+            GetAndUpdateUserScore(score, isVictory);
+            return;
+        }
 
-        });
+        var indate = data[0]["inDate"].ToString();
+        Debug.Log("data[0][inDate].ToString() : " + indate);
+        // 테이블 조회 후 갱신할 테이블의 inDate를 조회했으면,
+        // 해당 정보를 이용하여 랭킹 갱신
+        UpdateUserScore(indate, score, isVictory);
+
+
     }
 
 
     // 랭킹 점수 갱신
-   public void UpdateUserScore(string inDate,int score)
+    void UpdateUserScore(string inDate, int score, bool isVictory)
     {
         CheckRankUuid();
 
         Param param = new Param();
-        param.Add("trophy", score);
+        if (isVictory)
+            param.AddCalculation("trophy", GameInfoOperator.addition, score);
+        else
+            param.AddCalculation("trophy", GameInfoOperator.subtraction, score);
 
-        // tableName 테이블에 inDate row의 score 컬럼을 rnd.Next()의 리턴값으로 갱신하면서,
-        // 랭킹을 갱신
-        Backend.URank.User.UpdateUserScore(userRankUuid, tableName, inDate, param, bro =>
+        Backend.GameData.UpdateWithCalculation(tableName, inDate, param);
+        var myTable = Backend.GameData.Get(tableName, inDate);
+        var data = myTable.GetFlattenJSON()["row"]["trophy"];
+        string sMyTrophy = data.ToString();
+        int iMyTrophy = Int32.Parse(sMyTrophy);
+
+        Param rankParam = new Param();
+        rankParam.Add("trophy", iMyTrophy);
+       
+        var bro = Backend.URank.User.UpdateUserScore(userRankUuid, tableName, inDate, rankParam);
+        if (bro.IsSuccess() == false)
         {
-            if (bro.IsSuccess() == false)
-            {
-                Debug.LogError("userRank 랭킹 갱신 실패: " + bro);
-                return;
-            }
+            Debug.LogError("userRank 랭킹 갱신 실패: " + bro);
+            return;
+        }
 
-            Debug.Log("userRank 랭킹 갱신 성공: " + bro);
-        });
-    }
+        Debug.Log("userRank 랭킹 갱신 성공: " + bro);
+        GetMyRank();
+
+    } 
 
     void CheckRankUuid()
     {
@@ -867,99 +871,99 @@ public class NetworkManager : MonoBehaviour
     }
 
     //유저 랭킹 리스트 조회
-    public void GetRankList()
-    {
-        CheckRankUuid();
+    //public void GetRankList()
+    //{
+    //    CheckRankUuid();
 
-        int limit = 10;
-        Backend.URank.User.GetRankList(userRankUuid, limit, callback =>
-        {
-            Debug.Log("-------------------------------------------------------");
-            if (callback.IsSuccess() == false)
-            {
-                Debug.LogError("userRank 조회 실패: " + callback);
-                return;
-            }
+    //    int limit = 10;
+    //    Backend.URank.User.GetRankList(userRankUuid, limit, callback =>
+    //    {
+    //        Debug.Log("-------------------------------------------------------");
+    //        if (callback.IsSuccess() == false)
+    //        {
+    //            Debug.LogError("userRank 조회 실패: " + callback);
+    //            return;
+    //        }
 
-            Debug.Log("userRank 갯수: " + callback.GetFlattenJSON()["totalCount"].ToString());
+    //        Debug.Log("userRank 갯수: " + callback.GetFlattenJSON()["totalCount"].ToString());
 
-            var data = callback.FlattenRows();
+    //        var data = callback.FlattenRows();
 
-            for (int i = 0; i < data.Count; ++i)
-            {
-                Debug.Log(string.Format("rank: {0} / gamerIndate: {1} / score: {2}",
-                    data[i]["rank"].ToString(), data[i]["gamerInDate"].ToString(), data[i]["score"].ToString()));
-            }
-        });
+    //        for (int i = 0; i < data.Count; ++i)
+    //        {
+    //            Debug.Log(string.Format("rank: {0} / gamerIndate: {1} / score: {2}",
+    //                data[i]["rank"].ToString(), data[i]["gamerInDate"].ToString(), data[i]["score"].ToString()));
+    //        }
+    //    });
 
-    }
+    //}
 
     // 내 랭킹 조회 및 (등수와 트로피 저장)
     public void GetMyRank()
     {
         CheckRankUuid();
+
+        //StartCoroutine("GetMyRankData");
         int score = 0;
         int rank = 0;
         BackendReturnObject callback = Backend.URank.User.GetMyRank(userRankUuid);
 
         Debug.Log("-------------------------------------------------------");
-        string error = callback.GetStatusCode();
-
         if (callback.IsSuccess() == false)
         {
             Debug.LogError("내 userRank 조회 실패: " + callback);
             Debug.Log("Set up defualt Rank..!");
             //GameData존재 확인 아마도 게임정보가 없을 거임
             //테이블.칼럼에 디폴트 값(0) 추가 -> GameData 존재 다시 확인 -> InDate 추출 -> 랭킹갱신
-            GetAndUpdateUserScore(0);
+            GetAndUpdateUserScore(0,true);
             Managers.Scene.LoadScene(Define.Scene.Main);
-            //GetMyRank();   //스택오버플로 일어나면 어카지...?
 
         }
-
-        var data = callback.FlattenRows();
-
-        for (int i = 0; i < data.Count; ++i)
+        else
         {
-            Debug.Log(string.Format("myRank: {0} / score: {1}",
-                data[i]["rank"].ToString(), data[i]["score"].ToString()));
-            score = (int)data[i]["score"]; //점수 저p
-            rank = (int)data[i]["rank"];
+            var data = callback.FlattenRows();
+            for (int i = 0; i < data.Count; ++i)
+            {
+                Debug.Log(string.Format("myRank: {0} / score: {1}",
+                    data[i]["rank"].ToString(), data[i]["score"].ToString()));
+                score = (int)data[i]["score"]; //점수 저p
+                rank = (int)data[i]["rank"];
+            }
+
+            Debug.Log("score : " + score);
+            trophy = score;
+            myRank = rank;
         }
-
-        Debug.Log("score : " + score);
-        trophy= score;
-        myRank = rank;
-
     }
+  
 
     //uuid 값을 이용하여 해당 랭킹에 등록된 랭커들 중 score 값을 가지고 있는 랭커와 해당 점수 위, 아래 점수의 랭커를 조회합니다.
     //조회한 score의 유저가 여러 명 존재할 경우 모든 유저가 조회됩니다.
     //해당 score의 위, 아래 점수의 유저가 여러 명 존재하더라도 각각 단 한명의 유저만 조회됩니다.
-    public void GetRankListByScore()
-    {
-        CheckRankUuid();
+    //public void GetRankListByScore()
+    //{
+    //    CheckRankUuid();
 
-        Backend.URank.User.GetRankListByScore(userRankUuid, 100, callback =>
-        {
-            Debug.Log("-------------------------------------------------------");
-            if (callback.IsSuccess() == false)
-            {
-                Debug.LogError("userRank에서 100점인 유저 조회 실패: " + callback);
-                return;
-            }
-            Debug.Log("userRank에서 100점인 유저");
-            var data = callback.FlattenRows();
-            if (data.Count <= 0)
-            {
-                Debug.Log("존재하지 않습니다.");
-            }
+    //    Backend.URank.User.GetRankListByScore(userRankUuid, 100, callback =>
+    //    {
+    //        Debug.Log("-------------------------------------------------------");
+    //        if (callback.IsSuccess() == false)
+    //        {
+    //            Debug.LogError("userRank에서 100점인 유저 조회 실패: " + callback);
+    //            return;
+    //        }
+    //        Debug.Log("userRank에서 100점인 유저");
+    //        var data = callback.FlattenRows();
+    //        if (data.Count <= 0)
+    //        {
+    //            Debug.Log("존재하지 않습니다.");
+    //        }
 
-            for (int i = 0; i < data.Count; ++i)
-            {
-                Debug.Log(string.Format("rank: {0} / gamerIndate: {1} / score: {2}",
-                    data[i]["rank"].ToString(), data[i]["gamerIndate"].ToString(), data[i]["score"].ToString()));
-            }
-        });
-    }
+    //        for (int i = 0; i < data.Count; ++i)
+    //        {
+    //            Debug.Log(string.Format("rank: {0} / gamerIndate: {1} / score: {2}",
+    //                data[i]["rank"].ToString(), data[i]["gamerIndate"].ToString(), data[i]["score"].ToString()));
+    //        }
+    //    });
+    //}
 }

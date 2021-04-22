@@ -27,6 +27,13 @@ public class PhotonMgs
     {
         PhotonNetwork.GameVersion = _gameVersion;
         PhotonNetwork.ConnectUsingSettings(); // 마스터 서버 접속
+        
+    }
+    public void OnDisconnect()
+    {
+        PhotonNetwork.Disconnect();
+        //PhotonNetwork.GameVersion = _gameVersion;
+        //PhotonNetwork.ConnectUsingSettings();  // 재 접속
 
     }
     public void JoinLobby() //로비 참가
@@ -56,11 +63,15 @@ public class PhotonMgs
         PhotonNetwork.LeaveRoom();  //master server로 돌아감
     }
 
-    public void LoadLevel() //씬 동기화
+    public void LoadLevelGame() //씬 동기화
     {
         PhotonNetwork.LoadLevel("Game");
         Debug.Log("---Game Start!!----");
-
+    }
+    public void LoadLevelMain()
+    {
+        PhotonNetwork.LoadLevel("Main");
+        Debug.Log("---Main Scene!!----");
     }
 
     public void ShowLogConutOfRooms()  //현재 방의 수 보여주기

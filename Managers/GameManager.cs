@@ -12,14 +12,16 @@ public class GameManager : MonoBehaviourPunCallbacks
     public GameObject MyField;
 
     public GameObject[] Mydacks;
+    public GameObject[] MydacksForResult;
+
     public string[] MydacksString;
     public Sprite[] MyDacks_Image;
     
-    public PhotonView PV;
-
     public TowerTemplete[] towerTempletes;
     public Hashtable ht = new Hashtable();
     public string htstring;
+
+    private bool bPause = false;
 
     private void Awake()
     {
@@ -58,4 +60,33 @@ public class GameManager : MonoBehaviourPunCallbacks
             towerTempletes[i] = Resources.Load<TowerTemplete>($"Tower_Template/{ht[Mydacks[i].GetComponent<Image>().sprite.name]}");
         }
     }
+
+    public void Pause() // 게임 일시 정ㅈㅣ
+    {
+        bPause = !bPause;
+
+        if (bPause)
+        {
+            Time.timeScale = 0;
+        }
+        else
+        {
+            Time.timeScale = 1;
+        }
+    }
+
+    public void MydacksForResultWindow()
+    {
+        // MydackList 업데이트
+        Hashtable cp = PhotonNetwork.LocalPlayer.CustomProperties;
+        MydacksString = cp["DackList"].ToString().Split(',');
+
+        for (int i = 0; i < MydacksForResult.Length; i++)
+        {
+            Debug.Log(MydacksForResult[i] + MydacksString[i]);
+            MydacksForResult[i].GetComponent<Image>().sprite = Resources.Load<Sprite>(MydacksString[i]);
+        }
+    }
 }
+
+
