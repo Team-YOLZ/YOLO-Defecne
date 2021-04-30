@@ -31,6 +31,9 @@ public class Managers : MonoBehaviour
     PhotonMgs _photon = new PhotonMgs();
     public static PhotonMgs Photon { get { return Instance._photon; } }
 
+    //LobbyManager _lobbyManager = new LobbyManager();
+    //public static LobbyManager Lobby { get { return Instance._lobbyManager; } }
+
     void Start()
     {
         Init();

@@ -82,10 +82,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     void Awake()
     {
         Managers.Photon.OnAwake();
+        Debug.Log("로비 어웨이크");
     }
 
     void Start()
     {
+        Debug.Log("로비 스타트");
         _networkManager = GameObject.Find("@Managers").GetComponent<NetworkManager>();  //FindObjectOfType 사용시 너무 느리니...
         //_networkManager = FindObjectOfType<NetworkManager>(); //네트워크매니저 스크립트로 유저아이디 가지고 올거ㅇ
         _loading = FindObjectOfType<Loading>();
@@ -97,8 +99,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         //}
         //else
         //{
-            Managers.Photon.OnStart(); //서버 접
-        //}
+        Managers.Photon.OnStart(); //서버 접
+                                   //}
+
     }
 
     #endregion
@@ -218,6 +221,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         MyTrophy = _networkManager.trophy;
         MyClass = MyTrophy / 200;
+        PhotonNetwork.LocalPlayer.SetCustomProperties(new Hashtable { { "MyTrophy", MyTrophy }, { "MyClass", MyClass } });
+        Hashtable cp = PhotonNetwork.LocalPlayer.CustomProperties;
+        Debug.Log("MyTrophy : " + cp["MyTrophy"] + ", MyClass : " + cp["MyClass"]);
 
         yield return MyTrophy;
 
@@ -239,7 +245,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         StartCoroutine("GetMyRank");
 
         _loading.IsConnectedToMaster(true);
-        
+
     }
 
     public override void OnDisconnected(DisconnectCause cause)
@@ -306,9 +312,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     #region Rank
     void RankSystem()
     {
-   
+
         //닉네임 설정
-        nickname_text.text= _networkManager.GetUserNickname();
+        nickname_text.text = PhotonNetwork.LocalPlayer.NickName;
 
         //0 200     0
         //200 400   1
@@ -323,12 +329,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
         //트로피 숫자 
         trophy_text.text = MyTrophy.ToString();
-      
+
         //클래스 이미지와 숫자
         class_text.text = $"클래스 {MyClass}";
         class_image.sprite = Resources.Load<Sprite>($"Rank/rank_{MyClass}");
 
-        trophy_progressbar.fillAmount = (MyTrophy % 200.0f)/200.0f;
+        trophy_progressbar.fillAmount = (MyTrophy % 200.0f) / 200.0f;
     }
 
 

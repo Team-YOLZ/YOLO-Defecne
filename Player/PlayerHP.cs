@@ -31,10 +31,10 @@ public class PlayerHP : MonoBehaviour
     public void TakeDamage(float damage)
     {
         currentHP -= damage;
-
+        
         //체력 0 게임오버.
         if (PV.IsMine)
-        {
+        {   
             if (currentHP <= 0)
             {
                 gameResult.Lose();// 게임에서 진 자신은 Lose()문으로
@@ -48,4 +48,5 @@ public class PlayerHP : MonoBehaviour
     {
         gameResult.Win();
     }
+
 }

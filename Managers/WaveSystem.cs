@@ -22,20 +22,18 @@ public class WaveSystem : MonoBehaviour
 
     public void Start()
     {
-        StartWave();
+        //EnemySpawn = GameObject.FindGameObjectsWithTag("EnemySpawner");
+        //for (int i = 0; i < EnemySpawn.Length; i++)
+        //{
+        //    enemy_enemySpawner[i] = EnemySpawn[i].GetComponent<EnemySpawner>();
+        //}
     }
 
-
+    [PunRPC]
     public void StartWave()
     {
-        EnemySpawn = GameObject.FindGameObjectsWithTag("EnemySpawner");
-        for (int i = 0; i < EnemySpawn.Length; i++)
-        {
-            enemy_enemySpawner[i] = EnemySpawn[i].GetComponent<EnemySpawner>();
-        }
-
         //현재 맵에 적이 없고 웨이브가 남아있다면
-        if (enemy_enemySpawner[1].EnemyList.Count == 0 && enemy_enemySpawner[0].EnemyList.Count == 0 && currentWaveIndex < waves.Length - 1 && enemySpawner.gameObject.GetComponent<PhotonView>().IsMine)
+        if (enemy_enemySpawner[1].EnemyList.Count == 0 && enemy_enemySpawner[0].EnemyList.Count == 0 && currentWaveIndex < waves.Length - 1)
         {
             //인덱스의 시작이 -1로 해둔 이유 웨이브 인덱스 증가 코드가 먼저 와야하기 때문
             currentWaveIndex++;
@@ -43,11 +41,39 @@ public class WaveSystem : MonoBehaviour
             enemy_enemySpawner[1].StartWave(waves[currentWaveIndex]);
             enemy_enemySpawner[0].StartWave(waves[currentWaveIndex]);
         }
+
     }
 
     public void FixedUpdate()
     {
-        StartWave();
+        EnemySpawn = GameObject.FindGameObjectsWithTag("EnemySpawner");
+        for (int i = 0; i < EnemySpawn.Length; i++)
+        {
+            enemy_enemySpawner[i] = EnemySpawn[i].GetComponent<EnemySpawner>();
+        }
+        if (enemy_enemySpawner[0].EnemyList.Count==0)
+        {
+            enemy_enemySpawner[0].canWave = true;
+        }
+        else
+        {
+            enemy_enemySpawner[0].canWave = false;
+        }
+
+        if (enemy_enemySpawner[1].EnemyList.Count == 0)
+        {
+            enemy_enemySpawner[1].canWave = true;
+        }
+        else
+        {
+            enemy_enemySpawner[1].canWave = false;
+        }
+
+
+        if (enemy_enemySpawner[0].canWave==true && enemy_enemySpawner[1].canWave == true)
+        {
+            PV.RPC("StartWave", RpcTarget.AllBuffered);
+        }
     }
 }
 

@@ -26,6 +26,7 @@ public class Loading : MonoBehaviour
 
     protected virtual void Init()
     {
+        IsLoading = LoadingState.Loading;
         sw.Start();  //시간측정 시작
     }
 

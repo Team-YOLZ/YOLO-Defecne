@@ -1,7 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class GameResult : MonoBehaviour
 {
@@ -46,8 +49,10 @@ public class GameResult : MonoBehaviour
         gameManager.Pause(); //게임 일시 정지
         gameManager.MydacksForResultWindow(); //나의 덱들 화면에 보여주기 
 
-        _networkManager = GameObject.Find("@Managers").GetComponent<NetworkManager>();  //FindObjectOfType 사용시 너무 느리니...
-        MyTrophy = _networkManager.trophy;
+        _networkManager= GameObject.Find("@Managers").GetComponent<NetworkManager>(); 
+
+        Hashtable cp = PhotonNetwork.LocalPlayer.CustomProperties;
+        MyTrophy = (int)cp["MyTrophy"];
         MyClass = MyTrophy / 200;
 
         ResultScene();
@@ -61,7 +66,7 @@ public class GameResult : MonoBehaviour
         {
             Result_Image.sprite = Resources.Load<Sprite>("GameResultUI/win");
             MyRank_Image.sprite = Resources.Load<Sprite>($"Rank/rank_{MyClass}");
-            MyNickname_Text.text = _networkManager.GetUserNickname();
+            MyNickname_Text.text = PhotonNetwork.LocalPlayer.NickName;
 
             AddTrophy= Random.Range(30, 40); //30~40 트로피 랜덤으로 주기
             StartCoroutine("AddMyTrophy");  //현재 트로피 갯수에서 더해진 트로피 만큼 짜르륵 올라감
@@ -75,7 +80,7 @@ public class GameResult : MonoBehaviour
         {
             Result_Image.sprite = Resources.Load<Sprite>("GameResultUI/lose");
             MyRank_Image.sprite = Resources.Load<Sprite>($"Rank/rank_{MyClass}");
-            MyNickname_Text.text = _networkManager.GetUserNickname();
+            MyNickname_Text.text = PhotonNetwork.LocalPlayer.NickName;
 
             AddTrophy = Random.Range(20, 30); //-30~ -20 트로피 랜덤으로 주기
             StartCoroutine(SubMyTrophy());  //현재 트로피 갯수에서 더해진 트로피 만큼 짜르륵 올라감
@@ -87,7 +92,7 @@ public class GameResult : MonoBehaviour
         }
     }
 
-    IEnumerator AddMyTrophy()  //이건 왜 안돼 ㅡ.ㅡ;;
+    IEnumerator AddMyTrophy()  //이건 타임스케일로 멈춰서 코루틴문이 안돌아감..!
     {
         yield return new WaitForSeconds(0.4f);
 
@@ -113,8 +118,10 @@ public class GameResult : MonoBehaviour
 
     public void GameToMain()  //메인화면으로 이동 
     {
+
+        //gameManager.Pause();
         gameresult_Canvas.SetActive(false);
-        Managers.Photon.OnDisconnect();
+        //Managers.Photon.OnDisconnect();
         //Managers.Scene.LoadScene(Define.Scene.Main);
         Managers.Photon.LoadLevelMain();  //마스터가 나가야 나갈 수 있나...?
         //클라이언트는 왜 다시 게임화면으로 넘어가 지는데 ...... 방장은 잘 나갔자나...?

@@ -10,6 +10,7 @@ public class LoadingImage : Loading
 
     protected override void Init() //부모클래스가 실행 시켜줌 
     {
+        //Loading_image.SetActive(true);
         base.Init();  
     }
 

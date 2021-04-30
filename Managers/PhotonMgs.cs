@@ -72,73 +72,11 @@ public class PhotonMgs
     {
         PhotonNetwork.LoadLevel("Main");
         Debug.Log("---Main Scene!!----");
+        //OnStart();
     }
 
     public void ShowLogConutOfRooms()  //현재 방의 수 보여주기
     {
         Debug.Log("현재 방 수 : " + PhotonNetwork.CountOfRooms);
     }
-
-    
-
-    //#region Pun Callbacks
-
-    //public override void OnConnectedToMaster()
-    //{
-    //    Debug.Log("connect To Master");
-
-    //    PhotonNetwork.LocalPlayer.NickName = _userId;
-    //    Debug.Log("유저닉네임 : " + PhotonNetwork.LocalPlayer.NickName);
-
-    //}
-
-    //public override void OnDisconnected(DisconnectCause cause)
-    //{
-    //    Debug.Log("disconnect To Master");
-
-    //    PhotonNetwork.ConnectUsingSettings();  // 재 접속
-    //}
-
-    //public override void OnJoinedLobby() // 로비 입장시
-    //{
-    //    Debug.Log("joined Lobby");
-    //}
-
-    //public override void OnLeftLobby() //로비 떠날ㅅㅣ
-    //{
-    //    Debug.Log("Leave Lobby");
-    //    //마스터서버로 
-    //}
-
-    //public override void OnCreatedRoom()
-    //{
-    //    Debug.Log("번호 생성 후, 대기중..");
-    //    Debug.Log("create현재 방 이름 : " + PhotonNetwork.CurrentRoom.Name);
-    //}
-    //public override void OnJoinedRoom()
-    //{
-    //    Debug.Log("방 참가 완료");
-    //    Debug.Log("join현재 방 이름 : " + PhotonNetwork.CurrentRoom.Name);
-    //    Debug.Log("join현재 방 인원쉐 : " + PhotonNetwork.CurrentRoom.PlayerCount);
-    //    //주사위 정보들 SetCustom프로퍼티 여기서 진행.
-    //    if (PhotonNetwork.CurrentRoom.PlayerCount == 2)
-    //    {
-    //        //PV.RPC("EnterGame", RpcTarget.MasterClient);
-    //        _enterGame = true;
-    //        Debug.Log("_enterGame은 트루!!");
-    //    }
-    //}
-    //public override void OnJoinRoomFailed(short returnCode, string message)
-    //{
-      
-    //    Debug.Log("방 참가 실패: " + message);
-    //}
-
-    //public override void OnLeftRoom()
-    //{
-    //    Debug.Log("방 나가기");
-    //    PhotonNetwork.JoinLobby(); //로비로 다시 들어감
-    //}
-
-    //#endregion
 }
