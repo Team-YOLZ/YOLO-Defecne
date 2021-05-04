@@ -45,7 +45,6 @@ public class MainScene : BaseScene
     }
     public void GoLobby()
     {
-        //Managers.Scene.LoadScene(Define.Scene.Lobby);
         //로비씬 x -> 로비UI
         _lobbyPanel.SetActive(true);
         

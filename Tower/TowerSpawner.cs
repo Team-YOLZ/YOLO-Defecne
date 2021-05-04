@@ -16,10 +16,6 @@ public class TowerSpawner : MonoBehaviourPunCallbacks
     public int towerBuildGold = 10; // 타워건설에 필요한 골드.
     [SerializeField]
     public EnemySpawner _enemySpawner; //현재 맵에 존재하는 적 리스트 정보 얻기위해.
-
-    //[SerializeField]
-    //private GameObject[] _towerprefab;
-
     [SerializeField]
     private PlayerGold playerGold; // 타워 건설 시 골드 감소를 위해.
 
@@ -34,7 +30,6 @@ public class TowerSpawner : MonoBehaviourPunCallbacks
     public void Start()
     {
         //타워 선택 리스트 할당 코드 들어가야함. 디비 연동 후.
-        //_towerprefab = GameObject.FindGameObjectsWithTag();
         if (!PV.IsMine) this.gameObject.tag = "TowerSpawner(Client)";
         if (PV.IsMine)
         {

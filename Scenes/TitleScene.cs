@@ -40,7 +40,6 @@ public class TitleScene : BaseScene
         _loginIamge.SetActive(true);
         _signupIamge.SetActive(false);
         _screenCoverIamge.SetActive(false);
-        //Managers.Scene.LoadScene(Define.Scene.Main);
 
         _nowSceneState = TitleSceneState.Login; //현재 화면 상태 로그인화면
     }

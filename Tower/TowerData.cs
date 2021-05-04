@@ -7,8 +7,6 @@ using Photon.Pun;
 
 public class TowerData : MonoBehaviour
 {
-    //[SerializeField]
-    //private Button buttonUpgrade;
     [SerializeField]
     private Image imageTower;
     [SerializeField]
@@ -21,7 +19,6 @@ public class TowerData : MonoBehaviour
     private void Awake()
     {
         OffPanel();
-        //if (!PhotonNetwork.IsMasterClient) gameObject.tag = "MyInfo(Client)";
     }
 
     private void Update()

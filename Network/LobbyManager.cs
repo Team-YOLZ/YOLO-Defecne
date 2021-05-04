@@ -30,7 +30,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     private int MyTrophy;
     [SerializeField]
     private int MyClass;
-
+    
     [Header("Lobby")]
     [SerializeField]
     private GameObject lobby_panel;
@@ -70,6 +70,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     //public bool ismaster = false;
 
     #region Private Fields
+    private readonly string _gameVersion = "1";
 
     private string _roomNumber; //방 코드 번호(sender)
     private NetworkManager _networkManager;
@@ -81,26 +82,25 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     void Awake()
     {
-        Managers.Photon.OnAwake();
-        Debug.Log("로비 어웨이크");
+        //값이 true일 때 MasterClient는 PhotonNetwork.LoadLevel()을 호출 할 수 있고 모든 연결된 플레이어들은 동일한 레벨을 자동적으로 로드 할 것이다.
+        //즉, 마스터클라이언트가 씬을 넘길 시 모든 플레이어가 같은 씬으로 이동. 이동중이면 통신이 버퍼에 기록
+        PhotonNetwork.AutomaticallySyncScene = true;
     }
 
     void Start()
     {
-        Debug.Log("로비 스타트");
         _networkManager = GameObject.Find("@Managers").GetComponent<NetworkManager>();  //FindObjectOfType 사용시 너무 느리니...
         //_networkManager = FindObjectOfType<NetworkManager>(); //네트워크매니저 스크립트로 유저아이디 가지고 올거ㅇ
         _loading = FindObjectOfType<Loading>();
 
-        //if (PhotonNetwork.IsConnected) //이미 연결이 되어있다면
-        //{
-        //    Debug.Log("이미 연결되어 있었고 다시 재접속한다?");
-        //    Managers.Photon.OnDisconnect(); //연결해ㅈㅔ 후 재접속
-        //}
-        //else
-        //{
-        Managers.Photon.OnStart(); //서버 접
-                                   //}
+        if (PhotonNetwork.IsConnected) //이미 연결이 되어있고 스타트문이 실행된 다면 게임이 끝나고 메인씬으로 돌아오는 중이다.
+        {
+            Debug.Log("이미 연결되어 있음" ); 
+            StartCoroutine(gameExit()); //게임이 끝났으니 방을 떠나자
+        }
+        PhotonNetwork.GameVersion = _gameVersion;
+        PhotonNetwork.ConnectUsingSettings(); // 마스터 서버 접속
+                                         
 
     }
 
@@ -111,7 +111,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public void GoLobby() //로비 들어가기
     {
-        Managers.Photon.JoinLobby();
+        PhotonNetwork.JoinLobby();
 
         lobby_panel.SetActive(true);
         friendMatch_panel.SetActive(false);
@@ -123,7 +123,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     }
     public void LeaveLobby()  //로비 떠나기
     {
-        Managers.Photon.LeaveLobby();
+        PhotonNetwork.LeaveLobby();
 
         lobby_panel.SetActive(false);
         friendMatch_panel.SetActive(false);
@@ -150,7 +150,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         friendMatchJoin_panel.SetActive(true);
         friendMatchCreateRoom_panel.SetActive(false);
 
-        Managers.Photon.ShowLogConutOfRooms();
+        Debug.Log("현재 방 수 : " + PhotonNetwork.CountOfRooms);
     }
 
 
@@ -164,7 +164,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public void LeaveRoom()
     {
-        Managers.Photon.LeaveRoom();
+        PhotonNetwork.LeaveRoom();  //master server로 돌아감
     }
 
     public void FriendMatchCreateRoom()
@@ -177,7 +177,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         sendCode_inputfield.text = _roomNumber;
 
         Debug.Log("방 코드번호 : " + _roomNumber);
-        Managers.Photon.CreateRoom(_roomNumber);
+        PhotonNetwork.CreateRoom(_roomNumber, new RoomOptions { MaxPlayers = 2 });
+
     }
 
     public void FriendMatchJoinGameStart()
@@ -185,7 +186,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         if (receiveCode_inputfield.text.Equals(""))
             StartCoroutine(InfoTextShake());
         else
-            Managers.Photon.JoinRoom(receiveCode_inputfield.text);
+            PhotonNetwork.JoinRoom(receiveCode_inputfield.text, null);
+        
 
     }
 
@@ -193,7 +195,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     [PunRPC]
     public void EnterGame()
     {
-        Managers.Photon.LoadLevelGame();
+        PhotonNetwork.LoadLevel("Game");
+        Debug.Log("---Game Start!!----");
     }
 
     IEnumerator InfoTextShake()
@@ -223,13 +226,18 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         MyClass = MyTrophy / 200;
         PhotonNetwork.LocalPlayer.SetCustomProperties(new Hashtable { { "MyTrophy", MyTrophy }, { "MyClass", MyClass } });
         Hashtable cp = PhotonNetwork.LocalPlayer.CustomProperties;
-        Debug.Log("MyTrophy : " + cp["MyTrophy"] + ", MyClass : " + cp["MyClass"]);
+        Debug.Log("MyTrophy : "+cp["MyTrophy"]+", MyClass : "+cp["MyClass"]);
 
         yield return MyTrophy;
 
         RankSystem();
     }
 
+    IEnumerator gameExit()
+    {
+        yield return new WaitUntil(() => PhotonNetwork.LeaveRoom());
+        Debug.Log("방떠나기" );
+    }
     #endregion
 
     #region Pun Callbacks
@@ -290,8 +298,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.CurrentRoom.PlayerCount == 2)
         {
             PV.RPC("EnterGame", RpcTarget.MasterClient);
-            Managers.Photon._enterGame = true;
-            Debug.Log("_enterGame은 트루!!");
         }
     }
     public override void OnJoinRoomFailed(short returnCode, string message)
@@ -303,7 +309,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public override void OnLeftRoom()
     {
         Debug.Log("방 나가기");
-        PhotonNetwork.JoinLobby(); //로비로 다시 들어감
+        //PhotonNetwork.JoinLobby(); //로비로 다시 들어감
     }
     #endregion
 
@@ -329,12 +335,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
         //트로피 숫자 
         trophy_text.text = MyTrophy.ToString();
-
+      
         //클래스 이미지와 숫자
         class_text.text = $"클래스 {MyClass}";
         class_image.sprite = Resources.Load<Sprite>($"Rank/rank_{MyClass}");
-
-        trophy_progressbar.fillAmount = (MyTrophy % 200.0f) / 200.0f;
+            
+        trophy_progressbar.fillAmount = (MyTrophy % 200.0f)/200.0f;
     }
 
 

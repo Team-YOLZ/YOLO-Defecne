@@ -9,11 +9,10 @@ public enum WeaponType
 }
 public enum WeaponState
 {
+    //Tower Add State
     SearchTarget = 0,
     TryAttackIron,
     TryAttackLaser,
-    //AttackToTarget,
-    //AttackToTarget_Client,
 }
 
 public class TowerWeapon : MonoBehaviourPunCallbacks //, IPunObservable
@@ -22,12 +21,6 @@ public class TowerWeapon : MonoBehaviourPunCallbacks //, IPunObservable
     public PhotonView PV;
     [SerializeField]
     TowerTemplete[] randomtemplete;
-    //[SerializeField]
-    //private float _attackRate = 0.5f;                             //공격 속도(Default : 0.5f)
-    //[SerializeField]
-    //private float _attackRange = 2.0f;                            //공격 범위(Default : 2.0f)
-    //[SerializeField]
-    //private float attackdamage = 1f;                              //공격력.
 
     private WeaponState weaponState = WeaponState.SearchTarget;   //타워 상태(Default : Search)
     private Transform attackTarget = null;                        //공격 대상(Default : null)
@@ -155,26 +148,10 @@ public class TowerWeapon : MonoBehaviourPunCallbacks //, IPunObservable
     {
         while (true)
         {
-            ////제일 가까이 있는 적 찾기 위해 최초 거리를 크게 설정.
-            //float closestDistSqr = Mathf.Infinity;
-            ////EnemySpawner 안의 EnemyList에 있는 모든 적 검사.
-            //for (int i = 0; i < enemySpawner.EnemyList.Count; i++)
-            //{
-            //    //적 리스트와 타워간 거리 검사.
-            //    float distance = Vector3.Distance(enemySpawner.EnemyList[i].transform.position, transform.position);
-            //    //공격 사거리 안에 들어왔고 && 가장 가까운 적 즉 distance가 가장 짧은 적.
-            //    if (distance <= towerTemplete.weapon[level].range && distance <= closestDistSqr)
-            //    {
-            //        closestDistSqr = distance;
-            //        attackTarget = enemySpawner.EnemyList[i].transform;
-            //    }
-            //}
-
             attackTarget = FindClosetAttackTarget();
 
             if (attackTarget != null)
-            {
-                //ChangeState(WeaponState.AttackToTarget);
+            { 
                 if (weaponType == WeaponType.Iron)
                 {
                     ChangeState(WeaponState.TryAttackIron);
@@ -188,27 +165,10 @@ public class TowerWeapon : MonoBehaviourPunCallbacks //, IPunObservable
         }
     }
 
-    //private IEnumerator AttackToTarget()
     private IEnumerator TryAttackIron()
     {
         while (true)
         {
-            //// 1.target이 있는지 검사 (다른 타워에 의해 죽었거나 , Goal 지점에 도달해 이미 사라진 target 존재 가능함.)
-            //if (attackTarget == null)
-            //{
-            //    ChangeState(WeaponState.SearchTarget); //다시 Default로 돌아 간후 break;
-            //    break;
-            //}
-
-            ////2. target이 공격범위 안에 있는지 검사. (공격 범위를 벗어나면 새로운 타겟 찾아야함.)
-            //float distance = Vector3.Distance(attackTarget.position, transform.position);
-            //if (distance > towerTemplete.weapon[level].range)
-            //{
-            //    attackTarget = null;
-            //    ChangeState(WeaponState.SearchTarget);
-            //    break;
-            //}
-
             //target 공격하는게 가능한지 검사.
             if (IsPossibleToAttackTarget() == false)
             {
@@ -246,12 +206,10 @@ public class TowerWeapon : MonoBehaviourPunCallbacks //, IPunObservable
         lineRenderer.gameObject.SetActive(true);
         if (!PV.IsMine)
         {
-            //lineRenderer.gameObject.transform.position = new Vector3(lineRenderer.transform.position.x, lineRenderer.transform.position.x, -2);
             lineRenderer.sortingOrder = 10;
         }
         else
         {
-            //lineRenderer.gameObject.transform.position = new Vector3(lineRenderer.transform.position.x, lineRenderer.transform.position.x, 2);
             lineRenderer.sortingOrder = 10;
         }
     }
@@ -383,26 +341,6 @@ public class TowerWeapon : MonoBehaviourPunCallbacks //, IPunObservable
         {
             BulletParenting_Client(go);
             go.GetComponent<ProjectTile>().SetUp(attackTarget, towerTemplete.weapon[level].damage);
-
-            //go.GetComponent<ProjectTile>().SetUp(_receiveAttackTarget, _receiveAttackDamage);
         }
     }
-
-    ////클론이 통신을 받는 변수 설정
-    //private SpriteRenderer currTower;
-
-    //public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    //{
-    //    //통신을 보내는 
-    //    if (stream.IsWriting)
-    //    {
-    //        stream.SendNext(level);
-    //    }
-
-    //    //클론이 통신을 받는 
-    //    else
-    //    {
-    //        level = (int)stream.ReceiveNext();
-    //    }
-    //}
 }

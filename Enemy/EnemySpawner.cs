@@ -6,14 +6,10 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
-    //[SerializeField]
-    //private GameObject  _enemyPrefab; //적 프리팹. 리소스매니저 사용 or 사용안함 후에 결정.
     [SerializeField]
     private GameObject _enemyHpSliderPrefab; //적 체력을 나타내는 slider 프리팹.
     [SerializeField]
     private Transform _cansvasTransform; //UI를 표현해주는 Canvas Transform.
-    //[SerializeField]
-    //private float       _spawnTime;   //적 생성 주기.
     [SerializeField]
     private Transform[] _wayPoints;   //현재 스테이지 이동 경로.
     [SerializeField]
@@ -25,7 +21,6 @@ public class EnemySpawner : MonoBehaviour
     public bool canWave = true;
     public GameObject[] EnemySpawn;
     public EnemySpawner[] enemy_enemySpawner;
-    //private static GameObject go;
 
     //적의 생성과 삭제는 EnemySpawner에서 하기 때문에 set은 불필요.
     public List<EnemyCtrl> EnemyList => enemyList; //get
@@ -36,12 +31,9 @@ public class EnemySpawner : MonoBehaviour
     {
         //적 리스트 메모리 할당.
         enemyList = new List<EnemyCtrl>();
-        //적 생성 코루틴 함수 호출
-        //StartCoroutine("SpawnEnemy");
     }
     private void Start()
     {
-        //if (!PV.IsMine) this.gameObject.tag = "EnemySpawner(Client)";
         _cansvasTransform = GameObject.FindGameObjectWithTag("GameCanvas").transform;
     }
     public void StartWave(Wave wave)
@@ -54,24 +46,15 @@ public class EnemySpawner : MonoBehaviour
     private IEnumerator SpawnEnemy()
     {
             int spawnEnemyCount = 0;
-            //while (true)
             //현재 웨이브에서 생성해야 하는 만큼의 적 생성 후 코루틴 종료.
             while (spawnEnemyCount < currentWave.maxEnemyCount)
             {
-                //GameObject go = Instantiate(_enemyPrefab);  //리소스매니저 사용 x
-                //GameObject go =Managers.Resource.Instantiate("Enemy01"); // 리소스매니저 사용.
-
-
                 //웨이브에 등장하는 적의 종류에 따라 적 생성,
                 int enemyIndex = Random.Range(0, currentWave.enemyPrefabs.Length);
                 GameObject go = Instantiate(currentWave.enemyPrefabs[enemyIndex]);
 
-
-                //GameObject go = PhotonNetwork.Instantiate(currentWave.enemyPrefabs[enemyIndex].name, _wayPoints[0].position, Quaternion.identity);
-
                 if (!PV.IsMine)
                 {
-                    //go.tag = "Enemy(Client)";
                     go.name = "@Enemy(Client)";
                 }
                 else
@@ -132,17 +115,4 @@ public class EnemySpawner : MonoBehaviour
         //slider ui가 자신의 체력 반영하도록 설정.
         sliderclone.GetComponent<EnemyHpViewer>().Setup(enemy.GetComponent<EnemyHp>());
     }
-
-    //[PunRPC]
-    //void EnemySetUp()
-    //{
-    //    EnemyCtrl enemy = go.GetComponent<EnemyCtrl>();  //방금 생성된 적의 Enemy 스크립트
-
-    //    //this는 나 자신(자신의 EnemySpawner 정보)
-    //    enemy.Setup(this, _wayPoints);   //Setup 호출.
-    //    enemyList.Add(enemy); //리스트에 할당.
-
-    //    SpawnEnemySliderHP(go);
-
-    //}
 }

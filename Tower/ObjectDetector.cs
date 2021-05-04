@@ -31,7 +31,6 @@ public class ObjectDetector : MonoBehaviourPunCallbacks
     private GameObject DestroyTower; //없어질 타워.
     private GameObject[] AllTower;  //전체 타워리스트.
     private GameObject[] SameTower; //같은 타워리스트
-    //private PhotonView TowerPV;
 
     private void Awake()
     {
@@ -49,17 +48,13 @@ public class ObjectDetector : MonoBehaviourPunCallbacks
         //타일에 직접 소환하는 코드(예전 코드)
         if (Input.GetMouseButtonDown(0) && PV.IsMine)
         {
-            //ray  (origin : maincamera , direction : 클릭된 마우스 좌표)
-
             ray = mainCamera.ScreenPointToRay(Input.mousePosition);
             //raycast : ray에 검출된 object return 
             if (Physics.Raycast(ray, out hit, Mathf.Infinity)) // 일단 무한대로 쏨.
             {
                 if (hit.transform.CompareTag("Tower"))
                 {
-                    //TowerPV = hit.transform.GetComponent<PhotonView>();
                     towerData.OnPanel(hit.transform);
-                    //hit.transform.gameObject.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
                     AllTower = GameObject.FindGameObjectsWithTag("Tower");
                     //타워 선택.
                     for (int i = 0; i < AllTower.Length; i++)

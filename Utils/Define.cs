@@ -9,22 +9,12 @@ public class Define
         Click,
         Drag,
     }
-    //public enum Sound
-    //{
-    //    Bgm,
-    //    Effect,
-    //    MaxCount,
-    //}
     public enum MouseEvent
     {
         Press,
         Click,
         Drag,
     }
-    //public enum CameraMode
-    //{
-    //    QuarterView,
-    //}
     public enum Scene
     {
         Unknown,
@@ -41,7 +31,6 @@ public class Define
         SignUp,
         SignUpNickname,
         SignUpNicknameCancle,
-       
     }
 
     public enum LoadingState

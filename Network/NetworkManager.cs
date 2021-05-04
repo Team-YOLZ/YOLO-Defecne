@@ -47,20 +47,6 @@ public class NetworkManager : MonoBehaviour
 
     protected TitleSceneState _nowSceneState = TitleSceneState.Login;  //초기값 로그인화면
 
-    //void Start()
-    //{
-    //    //(동기)
-    //    var bro = Backend.Initialize(true);
-    //    if (bro.IsSuccess())
-    //    {
-    //        Debug.Log("뒤끝 초기화 성공");
-    //    }
-    //    else
-    //    {
-    //        Debug.LogError("뒤끝 초기화 실패\n" + bro);
-    //    }
-    //}
-
     void Awake()
     {
         // 뒤끝 초기화
@@ -433,20 +419,6 @@ public class NetworkManager : MonoBehaviour
             NicknameError_Text.text = "닉네임을 입력해 주세요.";
             isSuccessNicknamechecked = false;
         }
-        //Debug.Log("-------------CheckNicknameDuplication!!!!-------------");
-        //if(InputFieldEmptyCheck(SignUp_NicknameInput))
-        //{
-        //    BackendReturnObject bro = Backend.BMember.CheckNicknameDuplication(SignUp_NicknameInput.text);
-        //    if (bro.IsSuccess())
-        //    {
-        //        Debug.Log(bro+ ", 해당 닉네임으로 설정 가능");
-        //    }
-        //    else
-        //    {
-        //        Debug.Log("닉네임 좀 보셈");
-        //    }
-
-        //}
     }
 
     public void ACheckNicknameDuplication()
@@ -471,15 +443,6 @@ public class NetworkManager : MonoBehaviour
     public void CreateNickname()
     {
         Debug.Log("-------------CreateNickname-------------");
-        //if (InputFieldEmptyCheck(SignUp_NicknameInput))
-        //{
-        //    Debug.Log(Backend.BMember.CreateNickname(SignUp_NicknameInput.text).ToString());
-        //}
-        //else
-        //{
-        //    Debug.Log("check NicknameInput");
-        //}
-
         //닉네임 중복 성공 여부 및 현재 닉네임 입력 필드와 중복확인 버튼 누른 후의 입력필드가 같은가?
         if (isSuccessNicknamechecked && (nicknameDuplitionText == SignUp_NicknameInput.text))
         {
@@ -546,9 +509,6 @@ public class NetworkManager : MonoBehaviour
         BackendReturnObject userinfo = Backend.BMember.GetUserInfo();
         Debug.Log(userinfo);
 
-        //text.text = userinfo.ToString();
-
-
         if (userinfo.IsSuccess())
         {
             JsonData Userdata = userinfo.GetReturnValuetoJSON()["row"];
@@ -601,13 +561,6 @@ public class NetworkManager : MonoBehaviour
     {
         Debug.Log("-------------PutDeviceToken-------------");
 #if UNITY_ANDROID
-        try{
-        bro = Backend.Android.PutDeviceToken();
-            Debug.Log(bro);
-        //text.text = bro.ToString();
-        }catch(Exception e){
-            Debug.Log(e);
-        }
 #else
         Debug.Log(Backend.iOS.PutDeviceToken(isDevelopment.iosDev));
 #endif
@@ -617,10 +570,7 @@ public class NetworkManager : MonoBehaviour
     {
         Debug.Log("-------------APutDeviceToken-------------");
 #if UNITY_ANDROID
-        SendQueue.Enqueue(Backend.Android.PutDeviceToken, Backend.Android.GetDeviceToken(), bro =>
-        {
-            Debug.Log(bro);
-        });
+
 #else
         SendQueue.Enqueue(Backend.iOS.PutDeviceToken, isDevelopment.iosDev, bro =>
         {
@@ -634,7 +584,6 @@ public class NetworkManager : MonoBehaviour
     {
         Debug.Log("-------------DeleteDeviceToken-------------");
 #if UNITY_ANDROID
-        Debug.Log(Backend.Android.DeleteDeviceToken());
 #else
         Debug.Log(Backend.iOS.DeleteDeviceToken());
 #endif
@@ -644,10 +593,6 @@ public class NetworkManager : MonoBehaviour
     {
         Debug.Log("-------------ADeleteDeviceToken-------------");
 #if UNITY_ANDROID
-        SendQueue.Enqueue(Backend.Android.DeleteDeviceToken, bro =>
-        {
-            Debug.Log(bro);
-        });
 #else
         SendQueue.Enqueue(Backend.iOS.DeleteDeviceToken, bro =>
         {
@@ -870,40 +815,10 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    //유저 랭킹 리스트 조회
-    //public void GetRankList()
-    //{
-    //    CheckRankUuid();
-
-    //    int limit = 10;
-    //    Backend.URank.User.GetRankList(userRankUuid, limit, callback =>
-    //    {
-    //        Debug.Log("-------------------------------------------------------");
-    //        if (callback.IsSuccess() == false)
-    //        {
-    //            Debug.LogError("userRank 조회 실패: " + callback);
-    //            return;
-    //        }
-
-    //        Debug.Log("userRank 갯수: " + callback.GetFlattenJSON()["totalCount"].ToString());
-
-    //        var data = callback.FlattenRows();
-
-    //        for (int i = 0; i < data.Count; ++i)
-    //        {
-    //            Debug.Log(string.Format("rank: {0} / gamerIndate: {1} / score: {2}",
-    //                data[i]["rank"].ToString(), data[i]["gamerInDate"].ToString(), data[i]["score"].ToString()));
-    //        }
-    //    });
-
-    //}
-
     // 내 랭킹 조회 및 (등수와 트로피 저장)
     public void GetMyRank()
     {
         CheckRankUuid();
-
-        //StartCoroutine("GetMyRankData");
         int score = 0;
         int rank = 0;
         BackendReturnObject callback = Backend.URank.User.GetMyRank(userRankUuid);
@@ -935,35 +850,4 @@ public class NetworkManager : MonoBehaviour
             myRank = rank;
         }
     }
-  
-
-    //uuid 값을 이용하여 해당 랭킹에 등록된 랭커들 중 score 값을 가지고 있는 랭커와 해당 점수 위, 아래 점수의 랭커를 조회합니다.
-    //조회한 score의 유저가 여러 명 존재할 경우 모든 유저가 조회됩니다.
-    //해당 score의 위, 아래 점수의 유저가 여러 명 존재하더라도 각각 단 한명의 유저만 조회됩니다.
-    //public void GetRankListByScore()
-    //{
-    //    CheckRankUuid();
-
-    //    Backend.URank.User.GetRankListByScore(userRankUuid, 100, callback =>
-    //    {
-    //        Debug.Log("-------------------------------------------------------");
-    //        if (callback.IsSuccess() == false)
-    //        {
-    //            Debug.LogError("userRank에서 100점인 유저 조회 실패: " + callback);
-    //            return;
-    //        }
-    //        Debug.Log("userRank에서 100점인 유저");
-    //        var data = callback.FlattenRows();
-    //        if (data.Count <= 0)
-    //        {
-    //            Debug.Log("존재하지 않습니다.");
-    //        }
-
-    //        for (int i = 0; i < data.Count; ++i)
-    //        {
-    //            Debug.Log(string.Format("rank: {0} / gamerIndate: {1} / score: {2}",
-    //                data[i]["rank"].ToString(), data[i]["gamerIndate"].ToString(), data[i]["score"].ToString()));
-    //        }
-    //    });
-    //}
 }

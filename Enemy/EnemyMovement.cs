@@ -8,7 +8,6 @@ public class EnemyMovement : MonoBehaviour
     private Vector3 _movedirection = Vector3.zero;
 
     private float baseMoveSpeed;
-    //public float Movespeed => _movespeed; //movespeed 변수의 프로포티 (Get기능)
 
     public float Movespeed
     {

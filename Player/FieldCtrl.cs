@@ -18,24 +18,5 @@ public class FieldCtrl : MonoBehaviour
         {
             FieldCtrl.LocalPlayerInstance = this.gameObject;
         }
-        //else
-        //{
-        //    this.gameObject.transform.position = new Vector3(-1.3f, 0.18f, 77.0f);
-        //    this.gameObject.transform.rotation = Quaternion.Euler(0, 180.0f, 180.0f);
-        //}
-
-        //DontDestroyOnLoad(this.gameObject);
     }
-
-    //void Start()
-    //{
-    //    if (!PV.IsMine)
-    //    {
-       
-    //        this.gameObject.transform.position = new Vector3(-1.3f, 0.18f, 77.0f);
-    //        this.gameObject.transform.rotation = Quaternion.Euler(0, 180.0f, 180.0f);
-    //    }
-    //}
-
-
 }

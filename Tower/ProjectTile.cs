@@ -44,7 +44,6 @@ public class ProjectTile : MonoBehaviourPunCallbacks //,IPunObservable
        
         if (!collision.CompareTag("Enemy")) return; //적이 아닌 대상과 부딪히면 return; 
         if (collision.transform != target) return; //현재 타겟이 아닌 대상과 부딪혀도 return;
-        //collision.GetComponent<EnemyCtrl>().OnDie(); //적 사망 함수 호출. (우선 한방에 죽이도록 짜둠. Status 나중에 추가.)
         collision.GetComponent<EnemyHp>().TakeDamage(damage); // 적 피 깍이는 함수 새로 추가.
         if(gameObject.CompareTag("IceBullet"))//ice tower라
         {

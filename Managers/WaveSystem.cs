@@ -20,15 +20,6 @@ public class WaveSystem : MonoBehaviour
 
     private PhotonView SpawnerPV;
 
-    public void Start()
-    {
-        //EnemySpawn = GameObject.FindGameObjectsWithTag("EnemySpawner");
-        //for (int i = 0; i < EnemySpawn.Length; i++)
-        //{
-        //    enemy_enemySpawner[i] = EnemySpawn[i].GetComponent<EnemySpawner>();
-        //}
-    }
-
     [PunRPC]
     public void StartWave()
     {

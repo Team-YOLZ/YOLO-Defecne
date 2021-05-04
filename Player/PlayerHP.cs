@@ -16,8 +16,9 @@ public class PlayerHP : MonoBehaviour
     private GameResult gameResult;
 
     [SerializeField]
-    PhotonView PV;  
+    PhotonView PV;
 
+    private bool gameVictory = true;
     private void Awake()
     {
         currentHP = maxHP;
@@ -37,8 +38,8 @@ public class PlayerHP : MonoBehaviour
         {   
             if (currentHP <= 0)
             {
-                gameResult.Lose();// 게임에서 진 자신은 Lose()문으로
-                PV.RPC("WinGameResult", RpcTarget.OthersBuffered); //이긴 놈은 Win()문으로 
+                gameVictory = false;
+                PV.RPC("WinGameResult", RpcTarget.AllBuffered); 
             }
         }
     }
@@ -46,7 +47,7 @@ public class PlayerHP : MonoBehaviour
     [PunRPC]
     void WinGameResult()  //게임 오버 시 게임 결과 창 나오게 
     {
-        gameResult.Win();
+        gameResult.Result(gameVictory);
     }
 
 }
