@@ -7,26 +7,14 @@ public class Managers : MonoBehaviour
     static Managers s_instance; //유일성이 보장된다.
     static Managers Instance { get { Init(); return s_instance; } }
 
-    //DataManager _data = new DataManager();
-    //public static DataManager Data { get { return Instance._data; } }
-
     InputManager _input = new InputManager();
     public static InputManager Input { get { return Instance._input; } }
 
     ResourceManager _resource = new ResourceManager();
     public static ResourceManager Resource { get { return Instance._resource; } }
 
-    //UIManager _ui = new UIManager();
-    //public static UIManager UI { get { return Instance._ui; } }
-
     SceneManagerEx _scene = new SceneManagerEx();
     public static SceneManagerEx Scene { get { return Instance._scene; } }
-
-    //SoundManager _sound = new SoundManager();
-    //public static SoundManager Sound { get { return Instance._sound; } }
-
-    //PoolManager _pool = new PoolManager();
-    //public static PoolManager Pool { get { return Instance._pool; } }
 
     void Start()
     {
@@ -47,15 +35,11 @@ public class Managers : MonoBehaviour
             if (go == null)
             {
                 go = new GameObject { name = "@Managers" };
-                go.AddComponent<Managers>();
             }
+            go.AddComponent<Managers>();
             DontDestroyOnLoad(go);
             s_instance = go.GetComponent<Managers>();
         }
-    }
-
-    public static void Clear() //날려줘야할 것들
-    {
     }
 }
 
